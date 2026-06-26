@@ -1,6 +1,17 @@
+from pathlib import Path
+import sys
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+
 from fastapi import APIRouter
-from database import db
-from models.task import Task
+
+try:
+    from ..database import db
+    from ..models.task import Task
+except ImportError:
+    from backend.database import db
+    from backend.models.task import Task
 
 router = APIRouter()
 

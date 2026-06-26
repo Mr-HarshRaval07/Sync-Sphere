@@ -1,8 +1,24 @@
-from models.task import ChatRequest
+from pathlib import Path
+import sys
+
+if __package__ in (None, ""):
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+try:
+    from .models.task import ChatRequest
+    from .database import db
+    from .routes.tasks import router
+    from .config import SLACK_TOKEN
+except ImportError:
+    from backend.models.task import ChatRequest
+    from backend.database import db
+    from backend.routes.tasks import router
+    from backend.config import SLACK_TOKEN
+
 from fastapi import FastAPI
-from database import db
-from routes.tasks import router 
 from fastapi.middleware.cors import CORSMiddleware
+
+print("Slack Token:", SLACK_TOKEN)
 
 app = FastAPI()
 
@@ -13,14 +29,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 app.include_router(router)
+
+
 @app.get("/")
 def home():
     return {"message": "Sync Sphere Backend Running"}
+
+
 @app.get("/test-db")
 def test_db():
-    collections=db.list_collection_names()
+    collections = db.list_collection_names()
     return {"collections": collections}
+
 
 @app.post("/chat")
 def chat(request: ChatRequest):
