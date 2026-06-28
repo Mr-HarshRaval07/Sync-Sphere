@@ -8,4 +8,16 @@ if str(ROOT_DIR) not in sys.path:
 
 from backend.integrations.slack import send_slack_message
 
-send_slack_message("#general", "Sync Sphere is working 🚀")
+
+def main():
+    result = send_slack_message(channel="#all-janhvi", message="Sync Sphere is working 🚀")
+    print("Slack test completed.")
+    if result.get("ok"):
+        print("Slack posting succeeded.")
+    else:
+        print("Slack posting failed:", result)
+    return result
+
+
+if __name__ == "__main__":
+    main()

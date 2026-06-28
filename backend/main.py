@@ -6,25 +6,25 @@ if __package__ in (None, ""):
 
 try:
     from .models.task import ChatRequest
-    from .database import db
+    from .database import db, get_db_status
     from .routes.tasks import router
     from .config import SLACK_TOKEN
 except ImportError:
     from backend.models.task import ChatRequest
-    from backend.database import db
+    from backend.database import db, get_db_status
     from backend.routes.tasks import router
     from backend.config import SLACK_TOKEN
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-print("Slack Token:", SLACK_TOKEN)
+print("Slack Token configured:", bool(SLACK_TOKEN))
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +44,11 @@ def test_db():
     return {"collections": collections}
 
 
+@app.get("/db-status")
+def db_status():
+    return get_db_status()
+
+
 @app.post("/chat")
 def chat(request: ChatRequest):
 
@@ -58,6 +63,12 @@ def chat(request: ChatRequest):
         }
 
         db.tasks.insert_one(task)
+
+        try:
+            from backend.integrations.slack import notify_task_created
+            notify_task_created(task["title"], task["assignedTo"], task["status"])
+        except Exception as exc:
+            print("Slack notification failed:", exc)
 
         return {
             "reply": "Task Created Successfully"

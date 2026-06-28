@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+from threading import Thread
 
 if __package__ in (None, ""):
     sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
@@ -9,9 +10,11 @@ from fastapi import APIRouter
 try:
     from ..database import db
     from ..models.task import Task
+    from ..integrations.slack import notify_task_created
 except ImportError:
     from backend.database import db
     from backend.models.task import Task
+    from backend.integrations.slack import notify_task_created
 
 router = APIRouter()
 
@@ -22,6 +25,9 @@ def create_task(task: Task):
 
     result=db.tasks.insert_one(task.dict())
     print("inserted id",result.inserted_id)  # Debugging line to print the inserted ID
+
+    # Send Slack notification asynchronously so it doesn't block the response
+    Thread(target=notify_task_created, args=(task.title, task.assignedTo, task.status), daemon=True).start()
 
     return {
         "message": "Task Created"
