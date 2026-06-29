@@ -11,29 +11,53 @@ try:
     from ..database import db
     from ..models.task import Task
     from ..integrations.slack import notify_task_created
+    from ..integrations.github import create_github_issue
+
 except ImportError:
     from backend.database import db
     from backend.models.task import Task
     from backend.integrations.slack import notify_task_created
+    from backend.integrations.github import create_github_issue
+
 
 router = APIRouter()
 
-# create
+
+# Create Task
 @router.post("/tasks")
 def create_task(task: Task):
-    print("Received task:",task)  # Debugging line to print the received task
 
-    result=db.tasks.insert_one(task.dict())
-    print("inserted id",result.inserted_id)  # Debugging line to print the inserted ID
+    print("Received task:", task)
 
-    # Send Slack notification asynchronously so it doesn't block the response
-    Thread(target=notify_task_created, args=(task.title, task.assignedTo, task.status), daemon=True).start()
+    # Store in MongoDB (NO AI SUMMARY NOW)
+    result = db.tasks.insert_one({
+        "title": task.title,
+        "assignedTo": task.assignedTo,
+        "status": task.status
+    })
+
+    print("Inserted ID:", result.inserted_id)
+
+    # Slack notification
+    Thread(
+        target=notify_task_created,
+        args=(task.title, task.assignedTo, task.status),
+        daemon=True
+    ).start()
+
+    # GitHub Issue
+    Thread(
+        target=create_github_issue,
+        args=(task.title, task.assignedTo, task.status),
+        daemon=True
+    ).start()
 
     return {
         "message": "Task Created"
     }
 
-# read
+
+# Read Tasks
 @router.get("/tasks")
 def get_tasks():
 
@@ -46,7 +70,8 @@ def get_tasks():
 
     return tasks
 
-# update
+
+# Update Task
 @router.put("/tasks/{title}")
 def update_task(title: str):
 
@@ -63,7 +88,8 @@ def update_task(title: str):
         "message": "Task Updated"
     }
 
-# delete
+
+# Delete Task
 @router.delete("/tasks/{title}")
 def delete_task(title: str):
 
