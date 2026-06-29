@@ -1,6 +1,7 @@
 import asyncio
 
 from app.connectors.mock import MockConnector
+from app.connectors.jira.connector import JiraConnector
 from app.planner.planner import Planner
 from app.workflow.engine import WorkflowEngine
 from app.workflow.registry import ConnectorRegistry
@@ -16,7 +17,7 @@ async def main():
     registry = ConnectorRegistry()
 
     # Register mock for now
-    registry.register("jira", MockConnector())
+    registry.register("jira", JiraConnector())
     registry.register("slack", MockConnector())
 
     engine = WorkflowEngine(registry)
