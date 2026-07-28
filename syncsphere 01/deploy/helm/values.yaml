@@ -1,0 +1,52 @@
+# Default Helm values config parameters
+global:
+  environment: production
+
+replicaCount: 2
+
+image:
+  repository: syncsphere
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: syncsphere.ai
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 75
+
+mongodb:
+  enabled: true
+  auth:
+    rootUser: root
+    rootPassword: rootpasswordprod
+    database: syncsphere
+
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: false

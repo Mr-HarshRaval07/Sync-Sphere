@@ -1,0 +1,40 @@
+{
+  "providers": [
+    {
+      "_id": "6a61e9df2300220ef41394a8",
+      "org_id": "6a61d992676b5c9402828a20",
+      "created_at": "2026-07-23 10:15:59.762000",
+      "updated_at": "2026-07-23 10:15:59.762000",
+      "deleted_at": "None",
+      "name": "openrouter",
+      "api_key_encrypted": "None",
+      "api_url_override": "None",
+      "priority_level": "1",
+      "is_primary": "True",
+      "is_healthy": "True",
+      "latency_ms": "0.0",
+      "last_checked": "None",
+      "error_message": "None",
+      "status": "active",
+      "config_meta": "{}"
+    }
+  ],
+  "models": [
+    {
+      "_id": "6a61e9df2300220ef41394a9",
+      "org_id": "6a61d992676b5c9402828a20",
+      "created_at": "2026-07-23 10:15:59.842000",
+      "updated_at": "2026-07-23 10:15:59.842000",
+      "deleted_at": "None",
+      "provider_id": "6a61e9df2300220ef41394a8",
+      "name": "inclusionai/ling-3.0-flash:free",
+      "display_name": "InclusionAI Ling 3.0 Flash (Free)",
+      "capabilities": "['text_generation', 'reasoning', 'structured_output', 'vision', 'tool_calling']",
+      "context_window": "4096",
+      "max_output_tokens": "2048",
+      "cost_per_1k_input": "0.0",
+      "cost_per_1k_output": "0.0",
+      "status": "active"
+    }
+  ]
+}
