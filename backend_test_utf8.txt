@@ -1,0 +1,5 @@
+﻿http://localhost:8000/v1/automations/executions : 401
+http://localhost:8000/v1/workflows : 401
+http://localhost:8000/v1/tasks : 401
+http://localhost:8000/v1/ai/prompts : 401
+http://localhost:8000/v1/runtime/executions/test : 404

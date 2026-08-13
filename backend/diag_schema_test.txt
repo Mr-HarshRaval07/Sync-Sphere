@@ -1,0 +1,51 @@
+Testing direct OpenRouter chat completion with model: inclusionai/ling-3.0-flash:free and REAL schema
+RAW RESPONSE:
+{
+  "task": {
+    "title": "Send Slack Message",
+    "description": "Send a Slack message saying SyncSphere test.",
+    "assignee": "",
+    "assignee_email": null,
+    "priority": "Medium",
+    "status": "Pending",
+    "due_date": null
+  },
+  "integrations": [
+    {
+      "action": "slack.send_message",
+      "selected": true,
+      "config": {
+        "message": "SyncSphere test"
+      },
+      "missing_required_fields": [
+        "channel"
+      ],
+      "clarification_question": "Which Slack channel should the message be sent to?"
+    }
+  ]
+}
+JSON VALIDATION: PASS
+{
+  "task": {
+    "title": "Send Slack Message",
+    "description": "Send a Slack message saying SyncSphere test.",
+    "assignee": "",
+    "assignee_email": null,
+    "priority": "Medium",
+    "status": "Pending",
+    "due_date": null
+  },
+  "integrations": [
+    {
+      "action": "slack.send_message",
+      "selected": true,
+      "config": {
+        "message": "SyncSphere test"
+      },
+      "missing_required_fields": [
+        "channel"
+      ],
+      "clarification_question": "Which Slack channel should the message be sent to?"
+    }
+  ]
+}

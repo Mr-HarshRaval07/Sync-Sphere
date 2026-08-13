@@ -1,0 +1,3 @@
+﻿app/dashboard/workflows/page.tsx(536,11): error TS2322: Type 'WorkflowNode[]' is not assignable to type 'Node<NodeConfig>[]'.
+  Type 'WorkflowNode' is not assignable to type 'Node<NodeConfig>'.
+    Type 'WorkflowNode' is missing the following properties from type '{ id: string; position: XYPosition; data: NodeConfig; sourcePosition?: Position | undefined; targetPosition?: Position | undefined; hidden?: boolean | undefined; ... 18 more ...; measured?: { ...; } | undefined; }': position, data

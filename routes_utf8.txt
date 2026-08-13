@@ -1,0 +1,14 @@
+﻿D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\admin
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\ai-models
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\approvals
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\connectors
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\executions
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\integrations
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\knowledge
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\observability
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\operations
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\prompts
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\scheduled
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\settings
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\tasks
+D:\syncsphere 01\syncsphere 01\frontend\app\dashboard\workflows

@@ -1,0 +1,25 @@
+﻿frontend\app\dashboard\connectors\page.tsx:      router.replace('/dashboard/connectors', { scroll: false });
+frontend\app\dashboard\layout.tsx:    { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Connectors', path: '/dashboard/connectors', icon: <Radio className="h-4 w-4" />, enabled: flags.enableMcpConnectors },
+frontend\app\dashboard\layout.tsx:    { label: 'Tasks', path: '/dashboard/tasks', icon: <ClipboardList className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'AI Models', path: '/dashboard/ai-models', icon: <Sparkles className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Prompt Templates', path: '/dashboard/prompts', icon: <FileCode className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Workflow Builder', path: '/dashboard/workflows', icon: <GitFork className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Execution Runs', path: '/dashboard/executions', icon: <Activity className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Scheduled Workflows', path: '/dashboard/scheduled', icon: <CalendarClock className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:    { label: 'Human Approvals', path: '/dashboard/approvals', icon: <CheckSquare className="h-4 w-4" />, enabled: flags.enableApprovals },
+frontend\app\dashboard\layout.tsx:    { label: 'Knowledge Base', path: '/dashboard/knowledge', icon: <Database className="h-4 w-4" />, enabled: flags.enableKnowledge },
+frontend\app\dashboard\layout.tsx:    { label: 'Observability', path: '/dashboard/observability', icon: <Eye className="h-4 w-4" />, enabled: flags.enableObservability },
+frontend\app\dashboard\layout.tsx:    { label: 'Settings', path: '/dashboard/settings', icon: <Settings className="h-4 w-4" />, enabled: true },
+frontend\app\dashboard\layout.tsx:              const isActive = item.path === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.path);
+frontend\app\dashboard\layout.tsx:                  onClick={() => router.push('/dashboard/settings')}
+frontend\app\dashboard\page.tsx:                onRowClick={(row: any) => router.push(`/dashboard/executions/${row.id}`)}
+frontend\app\dashboard\prompts\page.tsx:    router.push('/dashboard/tasks');
+frontend\app\dashboard\tasks\PlanWithAIModal.tsx:                                                                router.push(`/dashboard/workflows?id=${wfId}`);
+frontend\app\dashboard\tasks\PlanWithAIModal.tsx:                                                                router.push(`/dashboard/workflows?id=${clonedId}`);
+frontend\app\dashboard\tasks\PlanWithAIModal.tsx:                                                        router.push('/dashboard/workflows?import=true');
+frontend\app\dashboard\workflows\page.tsx:      router.replace('/dashboard/workflows');
+frontend\app\dashboard\workflows\page.tsx:      router.replace('/dashboard/workflows');
+frontend\app\login\page.tsx:      router.push('/dashboard');
+frontend\app\register\page.tsx:      router.push('/dashboard');
+frontend\app\workflow\page.tsx:                    <Link href="/dashboard">

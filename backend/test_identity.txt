@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "<string>", line 14, in main
+    from syncsphere.tasks.schemas import ConfirmPlanRequest, AIPlannedTaskSchema, AIPlannedTask, AIPlannedIntegration
+ImportError: cannot import name 'AIPlannedTaskSchema' from 'syncsphere.tasks.schemas' (D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\schemas.py)

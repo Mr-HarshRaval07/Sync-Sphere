@@ -1,0 +1,33 @@
+CREATE TASK DECORATOR:
+160: # ---------------------------------------------------------------------------
+161: # POST /v1/tasks — Create task
+162: # ---------------------------------------------------------------------------
+163: 
+164: @router.post(
+165:     "",
+166:     response_model=ResponseEnvelope[TaskResponse],
+167:     status_code=status.HTTP_201_CREATED,
+168:     summary="Create a new task",
+169: )
+170: async def create_task(
+171:     request: Request,
+172:     body: CreateTaskRequest,
+173:     background_tasks: BackgroundTasks,
+174:     claims: dict = Depends(verify_jwt),
+
+LIST TASKS DECORATOR:
+635: # ---------------------------------------------------------------------------
+636: # GET /v1/tasks — List tasks
+637: # ---------------------------------------------------------------------------
+638: 
+639: @router.get(
+640:     "",
+641:     response_model=ResponseEnvelope[List[TaskResponse]],
+642:     status_code=status.HTTP_200_OK,
+643:     summary="List all tasks for the current organization",
+644: )
+645: async def list_tasks(
+646:     request: Request,
+647:     priority: Optional[str] = None,
+648:     task_status: Optional[str] = None,
+649:     claims: dict = Depends(verify_jwt),

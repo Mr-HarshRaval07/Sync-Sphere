@@ -1,0 +1,73 @@
+{
+  "time_taken": 10.180879831314087,
+  "status_code": 200,
+  "response": {
+    "data": {
+      "task": {
+        "title": "SyncSphere Multi Integration Test",
+        "description": "Execute a multi-integration test: send a Slack message to #all-janhvi, send an email, create a Google Calendar event tomorrow 2-3 PM, and append a row to a Google Sheet.",
+        "assignee": "",
+        "assignee_email": "",
+        "priority": "Medium",
+        "status": "Pending",
+        "due_date": null
+      },
+      "integrations": [
+        {
+          "action": "slack.send_message",
+          "selected": true,
+          "config": {
+            "channel": "#all-janhvi",
+            "message": "SyncSphere multi integration test"
+          },
+          "missing_required_fields": [],
+          "clarification_question": null
+        },
+        {
+          "action": "gmail.send_email",
+          "selected": true,
+          "config": {
+            "subject": "SyncSphere Multi Integration Test",
+            "body": "Multi integration test successful."
+          },
+          "missing_required_fields": [
+            "to"
+          ],
+          "clarification_question": "What is your test email address?"
+        },
+        {
+          "action": "google_calendar.create_event",
+          "selected": true,
+          "config": {
+            "summary": "SyncSphere Multi Integration Test",
+            "start_datetime": "2026-07-29T14:00:00Z",
+            "end_datetime": "2026-07-29T15:00:00Z",
+            "timezone": "UTC"
+          },
+          "missing_required_fields": [],
+          "clarification_question": null
+        },
+        {
+          "action": "google_sheets.append_row",
+          "selected": true,
+          "config": {
+            "values": [
+              "Multi Integration Test",
+              "Success",
+              "2026-07-28"
+            ]
+          },
+          "missing_required_fields": [
+            "spreadsheet_id",
+            "range_name"
+          ],
+          "clarification_question": null
+        }
+      ]
+    },
+    "meta": {
+      "request_id": "bcc83e77-dd97-4c8f-8207-de1c47b840df",
+      "timestamp": "2026-07-28T19:30:06.459257Z"
+    }
+  }
+}

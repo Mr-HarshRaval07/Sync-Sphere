@@ -1,0 +1,70 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: syncsphere-gitops
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/syncsphere/syncsphere.git'
+    targetRevision: HEAD
+    path: deploy/helm
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: syncsphere
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: syncsphere-canary
+  namespace: syncsphere
+spec:
+  hosts:
+    - syncsphere.ai
+  gateways:
+    - syncsphere-gateway
+  http:
+    - route:
+        - destination:
+            host: syncsphere-api-service
+            subset: stable
+          weight: 90
+        - destination:
+            host: syncsphere-api-service
+            subset: canary
+          weight: 10
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: syncsphere-bluegreen
+  namespace: syncsphere
+spec:
+  replicas: 2
+  strategy:
+    blueGreen:
+      activeService: syncsphere-api-active
+      previewService: syncsphere-api-preview
+      autoPromotionEnabled: false # Manual validation step before promotion
+  selector:
+    matchLabels:
+      app: syncsphere-api
+  template:
+    metadata:
+      labels:
+        app: syncsphere-api
+    spec:
+      containers:
+        - name: api
+          image: syncsphere/backend:latest
+          ports:
+            - containerPort: 8000

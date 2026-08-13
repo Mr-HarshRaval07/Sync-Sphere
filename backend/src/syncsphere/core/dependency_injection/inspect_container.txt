@@ -1,0 +1,19 @@
+58:         self.event_bus: Optional[RedisEventBus] = None
+236:             event_bus=self.event_bus,
+242:             event_bus=self.event_bus,
+312:             event_bus=self.event_bus,
+458:             event_bus=self.event_bus,
+518:             event_bus=self.event_bus,
+528:             event_bus=self.event_bus,
+636:             event_bus=None,
+705:             event_bus=None,
+1092:             self.event_bus = RedisEventBus(
+1105:             self.ai_service.event_bus = self.event_bus
+1107:             self.prompt_service.event_bus = self.event_bus
+1109:             self.ai_gateway.event_bus = self.event_bus
+1111:             self.planner_service.event_bus = self.event_bus
+1113:             self.execution_engine.event_bus = self.event_bus
+1115:             self.execution_pipeline.event_bus = self.event_bus
+1117:             self.knowledge_service.event_bus = self.event_bus
+1119:             self.approval_service.event_bus = self.event_bus
+1122:                 self.event_bus
