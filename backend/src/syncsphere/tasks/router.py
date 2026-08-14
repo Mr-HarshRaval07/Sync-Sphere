@@ -1014,6 +1014,9 @@ async def _execute_task_automation_impl(doc: TaskDocument) -> TaskDocument:
 
         import time
         exec_timer = ExecutionTimer(f"Task Automation Execution - {doc.title}")
+        # overall_start_time records the absolute start of this workflow execution
+        # so the final duration calculation below has a defined value.
+        overall_start_time = time.perf_counter()
 
         mongo_init_start = time.perf_counter()
         log_doc = WorkflowExecutionLogDocument(
