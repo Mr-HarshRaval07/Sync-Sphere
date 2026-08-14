@@ -509,6 +509,7 @@ async def plan_with_ai(
     from syncsphere.core.logging.execution_timer import ExecutionTimer
 
     timer = ExecutionTimer("AI Task Planning")
+    overall_start_time = time.perf_counter()
     prep_start_time = time.perf_counter()
 
     from syncsphere.tasks.documents import GoogleTokenDocument, SlackTokenDocument, GitHubTokenDocument
@@ -876,7 +877,10 @@ async def confirm_plan(
     status_code=status.HTTP_200_OK,
     summary="Manually execute or retry automation associated with a task",
 )
+
 async def execute_task_automation(
+
+    
     request: Request,
     task_id: str,
     claims: dict = Depends(verify_jwt),
