@@ -24,6 +24,14 @@ redis_manager.connect = MagicMock()
 redis_manager.disconnect = AsyncMock()
 redis_manager.ping = AsyncMock(return_value=True)
 redis_manager.client = MagicMock()
+
+mock_pubsub = MagicMock()
+mock_pubsub.psubscribe = AsyncMock()
+mock_pubsub.punsubscribe = AsyncMock()
+mock_pubsub.get_message = AsyncMock(return_value=None)
+mock_pubsub.close = AsyncMock()
+
+redis_manager.client.pubsub.return_value = mock_pubsub
 redis_manager.client.publish = dummy_async
 
 # Inject InMemory Repositories into DI Container for testing
