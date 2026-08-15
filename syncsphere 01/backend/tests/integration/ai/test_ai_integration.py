@@ -1,8 +1,31 @@
 import pytest
+from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from syncsphere.main import app
 
 client = TestClient(app)
+async def mock_chat(*args, **kwargs):
+    return {
+        "content": "Hello from mock AI",
+        "provider": "mock",
+        "model": "mock-text-model",
+    }
+
+
+async def mock_completion(*args, **kwargs):
+    return {
+        "text": "A quick mock poem",
+        "provider": "mock",
+        "model": "mock-text-model",
+    }
+
+
+async def mock_embeddings(*args, **kwargs):
+    return {
+        "embeddings": [[0.0] * 1536, [0.0] * 1536],
+        "provider": "mock",
+        "model": "mock-embed-model",
+    }
 
 def test_ai_platform_endpoints_flow():
     """
