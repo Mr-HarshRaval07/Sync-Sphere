@@ -291,6 +291,7 @@ def clean_repositories():
     container.auth_service.role_repo = container.role_repo
     container.auth_service.api_key_repo = container.api_key_repo
     container.auth_service.token_repo = container.token_repo
+    container.auth_service.event_bus = container.event_bus
 
     container.rbac_service.user_repo = container.user_repo
     container.rbac_service.role_repo = container.role_repo
