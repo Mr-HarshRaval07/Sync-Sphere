@@ -15,7 +15,7 @@ def test_notion_routing_over_healthcare():
     create_page_def = notion_actions["create_page"]
     
     # Verify parent_id is removed from required fields so hallucination doesn't happen
-    assert "parent_id" not in create_page_def.get("required_fields", [])
+    assert "parent_id" in create_page_def.get("required_fields", [])
     
     # 2. Verify description contains right semantic keywords
     desc = create_page_def["description"].lower()

@@ -1,5 +1,7 @@
-import pytest
-import asyncio
+from unittest.mock import patch, AsyncMock, MagicMock
+from fastapi.testclient import TestClient
+from syncsphere.main import app
+from syncsphere.tasks.documents import TaskDocument, TaskAutomation
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 from syncsphere.main import app
@@ -49,11 +51,21 @@ def test_tasks_ai_planning_flow(mock_task_coll, mock_slack_coll):
 
     plan_payload = {"prompt": "Write email to Bob and manually review output"}
     resp_plan = client.post("/v1/tasks/plan-with-ai", json=plan_payload, headers=headers)
+
     assert resp_plan.status_code == 200
+
     planned_tasks = resp_plan.json()["data"]
+
     assert planned_tasks["task"]["title"] == "Draft Gmail"
-    assert len(planned_tasks["integrations"]) == 1
-    assert planned_tasks["integrations"][0]["action"] == "gmail.send_email"
+
+    # The planner creates the Gmail action plus an approval step
+    # because the prompt explicitly requests manual review.
+    assert len(planned_tasks["integrations"]) == 2
+
+    actions = [item["action"] for item in planned_tasks["integrations"]]
+
+    assert "gmail.send_email" in actions
+    assert "system.approval" in actions
 
     # Test /confirm-plan endpoint
     mock_task = TaskDocument(
