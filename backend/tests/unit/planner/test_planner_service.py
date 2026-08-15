@@ -109,8 +109,9 @@ async def test_generate_workflow_pipeline_success():
     wf = res.value()
     assert wf.org_id == org_id
     assert wf.name == "Post slack message notification"
-    assert len(wf.graph.nodes) == 1
+    assert len(wf.graph.nodes) == 2
     assert "slack_step" in wf.graph.nodes
+    assert "approve_slack_step" in wf.graph.nodes
     
     # Check that a session and a trace was saved
     session_keys = list(container.planner_session_repo.store.keys())

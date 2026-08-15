@@ -1,16 +1,17 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import syncsphere.connectors.presentation.notion_actions as notion_actions
 
 @pytest.mark.asyncio
 async def test_notion_parent_payload_page():
     """Test A: Parent = Page, Expected: parent.page_id"""
-    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc") as mock_get_doc, \
+    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc", new_callable=AsyncMock) as mock_get_doc, \
          patch("syncsphere.connectors.presentation.notion_actions.httpx.AsyncClient") as mock_client:
          
         mock_doc = MagicMock()
         mock_doc.access_token = "fake_token"
+        mock_doc.accessible_pages = []
         mock_get_doc.return_value = mock_doc
         
         # We need mock_client.post to return a valid response (200)
@@ -18,7 +19,7 @@ async def test_notion_parent_payload_page():
         mock_response.status_code = 200
         mock_response.json.return_value = {"id": "new_page_id", "url": "https://notion.so/test"}
         
-        mock_post = MagicMock(return_value=mock_response)
+        mock_post = AsyncMock(return_value=mock_response)
         
         # Async context manager mock
         mock_client.return_value.__aenter__.return_value.post = mock_post
@@ -45,18 +46,19 @@ async def test_notion_parent_payload_page():
 @pytest.mark.asyncio
 async def test_notion_parent_payload_database():
     """Test B: Parent = Database, Expected: parent.database_id"""
-    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc") as mock_get_doc, \
+    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc", new_callable=AsyncMock) as mock_get_doc, \
          patch("syncsphere.connectors.presentation.notion_actions.httpx.AsyncClient") as mock_client:
          
         mock_doc = MagicMock()
         mock_doc.access_token = "fake_token"
+        mock_doc.accessible_pages = []
         mock_get_doc.return_value = mock_doc
         
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"id": "new_page_id", "url": "https://notion.so/test"}
         
-        mock_post = MagicMock(return_value=mock_response)
+        mock_post = AsyncMock(return_value=mock_response)
         mock_client.return_value.__aenter__.return_value.post = mock_post
         
         # Execute

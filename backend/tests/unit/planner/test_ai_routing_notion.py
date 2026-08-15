@@ -33,6 +33,6 @@ def test_notion_routing_over_healthcare():
     assert match[0].score > 0.5
     assert match[0].tool_name == "create_page"
     
-    match_notes = CapabilityMatcher.calculate_match("step1", "Save notes to workspace", tools, "notion")
+    match_notes = CapabilityMatcher.calculate_match("step1", "Create notes in workspace", tools, "notion")
     assert match_notes[0].score > 0.5
     assert match_notes[0].tool_name == "create_page"

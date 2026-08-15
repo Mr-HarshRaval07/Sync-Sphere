@@ -3,20 +3,14 @@ import asyncio
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 from syncsphere.main import app
-from beanie import init_beanie
-import motor.motor_asyncio
 from syncsphere.tasks.documents import TaskDocument, TaskAutomation
 
 client = TestClient(app)
 
-@pytest.fixture(autouse=True)
-async def init_beanie_test():
-    cli = motor.motor_asyncio.AsyncIOMotorClient()
-    db = cli["test_db"]
-    await init_beanie(database=db, document_models=[TaskDocument])
 
+@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True)
 @patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True)
-def test_tasks_ai_planning_flow(mock_task_coll):
+def test_tasks_ai_planning_flow(mock_task_coll, mock_slack_coll):
     # Register/Login
     register_payload = {
         "email": "aiadmin@acme.ai",
@@ -40,11 +34,8 @@ def test_tasks_ai_planning_flow(mock_task_coll):
     from syncsphere.core.dependency_injection.container import container
 
     mock_parsed_str = (
-        '{"tasks": ['
-        '  {"title": "Draft Gmail", "description": "Draft client email", "assigned_to": "Alice", "priority": "High",'
-        '   "automation_action": "gmail.send_email", "automation_config": {"to": "bob@gmail.com", "subject": "Hi", "body": "Hello"}},'
-        '  {"title": "Verify feedback", "description": "Manual verify", "assigned_to": "Bob", "priority": "Medium"}'
-        ']}'
+        '{"task": {"title": "Draft Gmail", "description": "Draft client email", "assigned_to": "Alice", "priority": "High", "status": "Pending"},'
+        ' "integrations": [{"action": "gmail.send_email", "selected": true, "config": {"to": "bob@gmail.com", "subject": "Hi", "body": "Hello"}}]}'
     )
 
     async def mock_structured_output(*args, **kwargs):
@@ -60,9 +51,9 @@ def test_tasks_ai_planning_flow(mock_task_coll):
     resp_plan = client.post("/v1/tasks/plan-with-ai", json=plan_payload, headers=headers)
     assert resp_plan.status_code == 200
     planned_tasks = resp_plan.json()["data"]
-    assert len(planned_tasks) == 2
-    assert planned_tasks[0]["title"] == "Draft Gmail"
-    assert planned_tasks[0]["automation_action"] == "gmail.send_email"
+    assert planned_tasks["task"]["title"] == "Draft Gmail"
+    assert len(planned_tasks["integrations"]) == 1
+    assert planned_tasks["integrations"][0]["action"] == "gmail.send_email"
 
     # Test /confirm-plan endpoint
     mock_task = TaskDocument(

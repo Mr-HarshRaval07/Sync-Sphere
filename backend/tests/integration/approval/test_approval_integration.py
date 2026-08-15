@@ -72,7 +72,7 @@ def test_approval_api_lifecycle_and_integration():
     }
     
     # Create request
-    resp_create = client.post("/v1/approval/request", json=req_payload, headers=headers)
+    resp_create = client.post("/v1/approvals/request", json=req_payload, headers=headers)
     assert resp_create.status_code == 201
     app_id = resp_create.json()["data"]["id"]
     
@@ -81,13 +81,13 @@ def test_approval_api_lifecycle_and_integration():
     # Let's verify we can find pending approvals for that manager user ID,
     # or let's delegate the task to our own user_id so we can approve it!
     # Let's inspect the request details
-    resp_audit = client.get(f"/v1/approval/audit?approval_id={app_id}", headers=headers)
+    resp_audit = client.get(f"/v1/approvals/{app_id}", headers=headers)
     assert resp_audit.status_code == 200
     audit_data = resp_audit.json()["data"]
     assert audit_data["status"] == "ACTIVE"
     
     # 3. Add a discussion comment
-    resp_comment = client.post(f"/v1/approval/comment?approval_id={app_id}", json={"text": "Reviewing security logs..."}, headers=headers)
+    resp_comment = client.post(f"/v1/approvals/{app_id}/comment", json={"text": "Reviewing security logs..."}, headers=headers)
     assert resp_comment.status_code == 200
     
     # 4. Delegate task to ourselves so we can submit the approval decision vote
@@ -103,7 +103,7 @@ def test_approval_api_lifecycle_and_integration():
     # Let's call POST /approval/delegate
     # We can fake from_user_id inside app service or run delegate
     resp_delegate = client.post(
-        f"/v1/approval/delegate?approval_id={app_id}",
+        f"/v1/approvals/{app_id}/delegate",
         json=delegate_payload,
         headers=headers
     )
@@ -122,12 +122,12 @@ def test_approval_api_lifecycle_and_integration():
     run_async(update_assignee_in_db())
     
     # Now that assignee is user_id, check pending approvals list
-    resp_pending = client.get("/v1/approval/pending", headers=headers)
+    resp_pending = client.get("/v1/approvals", headers=headers)
     assert resp_pending.status_code == 200
     assert len(resp_pending.json()["data"]) >= 1
     
     # 5. Retrieve history logs
-    resp_hist = client.get(f"/v1/approval/history?approval_id={app_id}", headers=headers)
+    resp_hist = client.get(f"/v1/approvals/{app_id}/history", headers=headers)
     assert resp_hist.status_code == 200
     assert len(resp_hist.json()["data"]) >= 1
     
@@ -190,12 +190,12 @@ def test_approval_api_lifecycle_and_integration():
     assert mock_session.status == ExecutionState.AWAITING_APPROVAL
     
     # Now, call Approve endpoint via API
-    resp_approve = client.post(f"/v1/approval/approve?approval_id={app_id}", json={"comment": "Approved!"}, headers=headers)
+    resp_approve = client.post(f"/v1/approvals/{app_id}/approve", json={"comment": "Approved!"}, headers=headers)
     assert resp_approve.status_code == 200
     assert resp_approve.json()["data"] is True
     
     # Check that request status is now APPROVED
-    resp_audit2 = client.get(f"/v1/approval/audit?approval_id={app_id}", headers=headers)
+    resp_audit2 = client.get(f"/v1/approvals/{app_id}", headers=headers)
     assert resp_audit2.json()["data"]["status"] == "APPROVED"
     
     # Wait, the app service publishes ApprovalCompleted event.
@@ -227,7 +227,7 @@ def test_approval_api_lifecycle_and_integration():
     run_async(check_resumed_session())
 
     # 7. Statistics endpoint check
-    resp_stats = client.get("/v1/approval/statistics", headers=headers)
+    resp_stats = client.get("/v1/approvals/statistics", headers=headers)
     assert resp_stats.status_code == 200
     stats_data = resp_stats.json()["data"]
     assert stats_data["total_requests"] >= 1
