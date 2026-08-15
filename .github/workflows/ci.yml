@@ -12,6 +12,8 @@ jobs:
   # ==========================================
   test-backend:
     runs-on: ubuntu-latest
+    env:
+       SYNCSPHERE_MONGODB_URI: ${{ secrets.SYNCSPHERE_MONGODB_URI }}
     steps:
       - uses: actions/checkout@v3
       
