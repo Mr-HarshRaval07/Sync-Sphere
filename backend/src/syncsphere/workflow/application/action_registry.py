@@ -192,7 +192,7 @@ CAPABILITY_REGISTRY: dict = {
                 "action": "create_page",
                 "display_name": "Create Page",
                 "description": "Create a new Notion page, doc, database, meeting notes, or workspace documentation. Use this for ANY notion page or notes creation.",
-                "required_fields": ["title"],
+                "required_fields": ["title","parent_id"],
                 "input_schema": {
                     "title": {"type": "string", "description": "Title of the page"},
                     "content": {"type": "string", "description": "Markdown body content"},
