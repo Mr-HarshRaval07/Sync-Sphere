@@ -35,7 +35,7 @@ jobs:
           
       - name: Test with pytest
         run: |
-          PYTHONPATH=backend/src pytest backend/tests
+           PYTHONPATH=backend:backend/src pytest backend/tests
 
   # ==========================================
   # Job 2: Test and Type-Check Frontend
