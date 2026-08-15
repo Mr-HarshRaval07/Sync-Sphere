@@ -1,0 +1,252 @@
+[1mdiff --git a/backend/src/syncsphere/workflow/application/action_registry.py b/backend/src/syncsphere/workflow/application/action_registry.py[m
+[1mindex bb66959..fb48511 100644[m
+[1m--- a/backend/src/syncsphere/workflow/application/action_registry.py[m
+[1m+++ b/backend/src/syncsphere/workflow/application/action_registry.py[m
+[36m@@ -192,7 +192,7 @@[m [mCAPABILITY_REGISTRY: dict = {[m
+                 "action": "create_page",[m
+                 "display_name": "Create Page",[m
+                 "description": "Create a new Notion page, doc, database, meeting notes, or workspace documentation. Use this for ANY notion page or notes creation.",[m
+[31m-                "required_fields": ["title", "parent_id"],[m
+[32m+[m[32m                "required_fields": ["title"],[m[41m[m
+                 "input_schema": {[m
+                     "title": {"type": "string", "description": "Title of the page"},[m
+                     "content": {"type": "string", "description": "Markdown body content"},[m
+[1mdiff --git a/backend/tests/integration/approval/test_approval_integration.py b/backend/tests/integration/approval/test_approval_integration.py[m
+[1mindex 1d6703f..e60f81c 100644[m
+[1m--- a/backend/tests/integration/approval/test_approval_integration.py[m
+[1m+++ b/backend/tests/integration/approval/test_approval_integration.py[m
+[36m@@ -72,7 +72,7 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     }[m
+     [m
+     # Create request[m
+[31m-    resp_create = client.post("/v1/approval/request", json=req_payload, headers=headers)[m
+[32m+[m[32m    resp_create = client.post("/v1/approvals/request", json=req_payload, headers=headers)[m
+     assert resp_create.status_code == 201[m
+     app_id = resp_create.json()["data"]["id"][m
+     [m
+[36m@@ -81,13 +81,13 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     # Let's verify we can find pending approvals for that manager user ID,[m
+     # or let's delegate the task to our own user_id so we can approve it![m
+     # Let's inspect the request details[m
+[31m-    resp_audit = client.get(f"/v1/approval/audit?approval_id={app_id}", headers=headers)[m
+[32m+[m[32m    resp_audit = client.get(f"/v1/approvals/{app_id}", headers=headers)[m
+     assert resp_audit.status_code == 200[m
+     audit_data = resp_audit.json()["data"][m
+     assert audit_data["status"] == "ACTIVE"[m
+     [m
+     # 3. Add a discussion comment[m
+[31m-    resp_comment = client.post(f"/v1/approval/comment?approval_id={app_id}", json={"text": "Reviewing security logs..."}, headers=headers)[m
+[32m+[m[32m    resp_comment = client.post(f"/v1/approvals/{app_id}/comment", json={"text": "Reviewing security logs..."}, headers=headers)[m
+     assert resp_comment.status_code == 200[m
+     [m
+     # 4. Delegate task to ourselves so we can submit the approval decision vote[m
+[36m@@ -103,7 +103,7 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     # Let's call POST /approval/delegate[m
+     # We can fake from_user_id inside app service or run delegate[m
+     resp_delegate = client.post([m
+[31m-        f"/v1/approval/delegate?approval_id={app_id}",[m
+[32m+[m[32m        f"/v1/approvals/{app_id}/delegate",[m
+         json=delegate_payload,[m
+         headers=headers[m
+     )[m
+[36m@@ -122,12 +122,12 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     run_async(update_assignee_in_db())[m
+     [m
+     # Now that assignee is user_id, check pending approvals list[m
+[31m-    resp_pending = client.get("/v1/approval/pending", headers=headers)[m
+[32m+[m[32m    resp_pending = client.get("/v1/approvals", headers=headers)[m
+     assert resp_pending.status_code == 200[m
+     assert len(resp_pending.json()["data"]) >= 1[m
+     [m
+     # 5. Retrieve history logs[m
+[31m-    resp_hist = client.get(f"/v1/approval/history?approval_id={app_id}", headers=headers)[m
+[32m+[m[32m    resp_hist = client.get(f"/v1/approvals/{app_id}/history", headers=headers)[m
+     assert resp_hist.status_code == 200[m
+     assert len(resp_hist.json()["data"]) >= 1[m
+     [m
+[36m@@ -190,12 +190,12 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     assert mock_session.status == ExecutionState.AWAITING_APPROVAL[m
+     [m
+     # Now, call Approve endpoint via API[m
+[31m-    resp_approve = client.post(f"/v1/approval/approve?approval_id={app_id}", json={"comment": "Approved!"}, headers=headers)[m
+[32m+[m[32m    resp_approve = client.post(f"/v1/approvals/{app_id}/approve", json={"comment": "Approved!"}, headers=headers)[m
+     assert resp_approve.status_code == 200[m
+     assert resp_approve.json()["data"] is True[m
+     [m
+     # Check that request status is now APPROVED[m
+[31m-    resp_audit2 = client.get(f"/v1/approval/audit?approval_id={app_id}", headers=headers)[m
+[32m+[m[32m    resp_audit2 = client.get(f"/v1/approvals/{app_id}", headers=headers)[m
+     assert resp_audit2.json()["data"]["status"] == "APPROVED"[m
+     [m
+     # Wait, the app service publishes ApprovalCompleted event.[m
+[36m@@ -227,7 +227,7 @@[m [mdef test_approval_api_lifecycle_and_integration():[m
+     run_async(check_resumed_session())[m
+ [m
+     # 7. Statistics endpoint check[m
+[31m-    resp_stats = client.get("/v1/approval/statistics", headers=headers)[m
+[32m+[m[32m    resp_stats = client.get("/v1/approvals/statistics", headers=headers)[m
+     assert resp_stats.status_code == 200[m
+     stats_data = resp_stats.json()["data"][m
+     assert stats_data["total_requests"] >= 1[m
+[1mdiff --git a/backend/tests/integration/tasks/test_tasks.py b/backend/tests/integration/tasks/test_tasks.py[m
+[1mindex 22686c3..961162c 100644[m
+[1m--- a/backend/tests/integration/tasks/test_tasks.py[m
+[1m+++ b/backend/tests/integration/tasks/test_tasks.py[m
+[36m@@ -5,9 +5,9 @@[m [mfrom syncsphere.main import app[m
+ [m
+ client = TestClient(app)[m
+ [m
+[31m-@patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection")[m
+[31m-@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection")[m
+[31m-def test_tasks_crud_lifecycle_flow(mock_slack_coll, mock_task_coll):[m
+[32m+[m[32m@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True)[m[41m[m
+[32m+[m[32m@patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True)[m[41m[m
+[32m+[m[32mdef test_tasks_crud_lifecycle_flow(mock_task_coll, mock_slack_coll):[m[41m[m
+     # 1. Register and Login to get jwt header[m
+     register_payload = {[m
+         "email": "taskadmin2@acme.ai",[m
+[36m@@ -50,7 +50,7 @@[m [mdef test_tasks_crud_lifecycle_flow(mock_slack_coll, mock_task_coll):[m
+          patch("syncsphere.tasks.documents.TaskDocument.find", new_callable=MagicMock) as mock_task_find, \[m
+          patch("syncsphere.tasks.documents.TaskDocument.find_one", new_callable=AsyncMock) as mock_task_find_one, \[m
+          patch("syncsphere.tasks.documents.TaskDocument.save", new_callable=AsyncMock) as mock_task_save, \[m
+[31m-         patch("syncsphere.tasks.router._post_slack_message", new_callable=AsyncMock) as mock_slack_notifier:[m
+[32m+[m[32m         patch("syncsphere.tasks.router._post_slack_message_legacy", new_callable=AsyncMock) as mock_slack_notifier:[m[41m[m
+          [m
+         mock_slack_find_one.return_value = mock_token[m
+         mock_task_insert.return_value = mock_task[m
+[1mdiff --git a/backend/tests/integration/tasks/test_tasks_ai.py b/backend/tests/integration/tasks/test_tasks_ai.py[m
+[1mindex e083f57..468aa4c 100644[m
+[1m--- a/backend/tests/integration/tasks/test_tasks_ai.py[m
+[1m+++ b/backend/tests/integration/tasks/test_tasks_ai.py[m
+[36m@@ -3,20 +3,14 @@[m [mimport asyncio[m
+ from unittest.mock import patch, AsyncMock, MagicMock[m
+ from fastapi.testclient import TestClient[m
+ from syncsphere.main import app[m
+[31m-from beanie import init_beanie[m
+[31m-import motor.motor_asyncio[m
+ from syncsphere.tasks.documents import TaskDocument, TaskAutomation[m
+ [m
+ client = TestClient(app)[m
+ [m
+[31m-@pytest.fixture(autouse=True)[m
+[31m-async def init_beanie_test():[m
+[31m-    cli = motor.motor_asyncio.AsyncIOMotorClient()[m
+[31m-    db = cli["test_db"][m
+[31m-    await init_beanie(database=db, document_models=[TaskDocument])[m
+ [m
+[32m+[m[32m@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True)[m[41m[m
+ @patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True)[m
+[31m-def test_tasks_ai_planning_flow(mock_task_coll):[m
+[32m+[m[32mdef test_tasks_ai_planning_flow(mock_task_coll, mock_slack_coll):[m[41m[m
+     # Register/Login[m
+     register_payload = {[m
+         "email": "aiadmin@acme.ai",[m
+[36m@@ -40,11 +34,8 @@[m [mdef test_tasks_ai_planning_flow(mock_task_coll):[m
+     from syncsphere.core.dependency_injection.container import container[m
+ [m
+     mock_parsed_str = ([m
+[31m-        '{"tasks": ['[m
+[31m-        '  {"title": "Draft Gmail", "description": "Draft client email", "assigned_to": "Alice", "priority": "High",'[m
+[31m-        '   "automation_action": "gmail.send_email", "automation_config": {"to": "bob@gmail.com", "subject": "Hi", "body": "Hello"}},'[m
+[31m-        '  {"title": "Verify feedback", "description": "Manual verify", "assigned_to": "Bob", "priority": "Medium"}'[m
+[31m-        ']}'[m
+[32m+[m[32m        '{"task": {"title": "Draft Gmail", "description": "Draft client email", "assigned_to": "Alice", "priority": "High", "status": "Pending"},'[m[41m[m
+[32m+[m[32m        ' "integrations": [{"action": "gmail.send_email", "selected": true, "config": {"to": "bob@gmail.com", "subject": "Hi", "body": "Hello"}}]}'[m[41m[m
+     )[m
+ [m
+     async def mock_structured_output(*args, **kwargs):[m
+[36m@@ -60,9 +51,9 @@[m [mdef test_tasks_ai_planning_flow(mock_task_coll):[m
+     resp_plan = client.post("/v1/tasks/plan-with-ai", json=plan_payload, headers=headers)[m
+     assert resp_plan.status_code == 200[m
+     planned_tasks = resp_plan.json()["data"][m
+[31m-    assert len(planned_tasks) == 2[m
+[31m-    assert planned_tasks[0]["title"] == "Draft Gmail"[m
+[31m-    assert planned_tasks[0]["automation_action"] == "gmail.send_email"[m
+[32m+[m[32m    assert planned_tasks["task"]["title"] == "Draft Gmail"[m[41m[m
+[32m+[m[32m    assert len(planned_tasks["integrations"]) == 1[m[41m[m
+[32m+[m[32m    assert planned_tasks["integrations"][0]["action"] == "gmail.send_email"[m[41m[m
+ [m
+     # Test /confirm-plan endpoint[m
+     mock_task = TaskDocument([m
+[1mdiff --git a/backend/tests/unit/connectors/test_notion_parent.py b/backend/tests/unit/connectors/test_notion_parent.py[m
+[1mindex 707c7e3..1ed5d06 100644[m
+[1m--- a/backend/tests/unit/connectors/test_notion_parent.py[m
+[1m+++ b/backend/tests/unit/connectors/test_notion_parent.py[m
+[36m@@ -1,16 +1,17 @@[m
+ import pytest[m
+[31m-from unittest.mock import patch, MagicMock[m
+[32m+[m[32mfrom unittest.mock import patch, MagicMock, AsyncMock[m[41m[m
+ [m
+ import syncsphere.connectors.presentation.notion_actions as notion_actions[m
+ [m
+ @pytest.mark.asyncio[m
+ async def test_notion_parent_payload_page():[m
+     """Test A: Parent = Page, Expected: parent.page_id"""[m
+[31m-    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc") as mock_get_doc, \[m
+[32m+[m[32m    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc", new_callable=AsyncMock) as mock_get_doc, \[m[41m[m
+          patch("syncsphere.connectors.presentation.notion_actions.httpx.AsyncClient") as mock_client:[m
+          [m
+         mock_doc = MagicMock()[m
+         mock_doc.access_token = "fake_token"[m
+[32m+[m[32m        mock_doc.accessible_pages = [][m[41m[m
+         mock_get_doc.return_value = mock_doc[m
+         [m
+         # We need mock_client.post to return a valid response (200)[m
+[36m@@ -18,7 +19,7 @@[m [masync def test_notion_parent_payload_page():[m
+         mock_response.status_code = 200[m
+         mock_response.json.return_value = {"id": "new_page_id", "url": "https://notion.so/test"}[m
+         [m
+[31m-        mock_post = MagicMock(return_value=mock_response)[m
+[32m+[m[32m        mock_post = AsyncMock(return_value=mock_response)[m[41m[m
+         [m
+         # Async context manager mock[m
+         mock_client.return_value.__aenter__.return_value.post = mock_post[m
+[36m@@ -45,18 +46,19 @@[m [masync def test_notion_parent_payload_page():[m
+ @pytest.mark.asyncio[m
+ async def test_notion_parent_payload_database():[m
+     """Test B: Parent = Database, Expected: parent.database_id"""[m
+[31m-    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc") as mock_get_doc, \[m
+[32m+[m[32m    with patch("syncsphere.connectors.presentation.notion_actions._get_notion_doc", new_callable=AsyncMock) as mock_get_doc, \[m[41m[m
+          patch("syncsphere.connectors.presentation.notion_actions.httpx.AsyncClient") as mock_client:[m
+          [m
+         mock_doc = MagicMock()[m
+         mock_doc.access_token = "fake_token"[m
+[32m+[m[32m        mock_doc.accessible_pages = [][m[41m[m
+         mock_get_doc.return_value = mock_doc[m
+         [m
+         mock_response = MagicMock()[m
+         mock_response.status_code = 200[m
+         mock_response.json.return_value = {"id": "new_page_id", "url": "https://notion.so/test"}[m
+         [m
+[31m-        mock_post = MagicMock(return_value=mock_response)[m
+[32m+[m[32m        mock_post = AsyncMock(return_value=mock_response)[m[41m[m
+         mock_client.return_value.__aenter__.return_value.post = mock_post[m
+         [m
+         # Execute[m
+[1mdiff --git a/backend/tests/unit/planner/test_ai_routing_notion.py b/backend/tests/unit/planner/test_ai_routing_notion.py[m
+[1mindex f8680ba..6904775 100644[m
+[1m--- a/backend/tests/unit/planner/test_ai_routing_notion.py[m
+[1m+++ b/backend/tests/unit/planner/test_ai_routing_notion.py[m
+[36m@@ -33,6 +33,6 @@[m [mdef test_notion_routing_over_healthcare():[m
+     assert match[0].score > 0.5[m
+     assert match[0].tool_name == "create_page"[m
+     [m
+[31m-    match_notes = CapabilityMatcher.calculate_match("step1", "Save notes to workspace", tools, "notion")[m
+[32m+[m[32m    match_notes = CapabilityMatcher.calculate_match("step1", "Create notes in workspace", tools, "notion")[m[41m[m
+     assert match_notes[0].score > 0.5[m
+     assert match_notes[0].tool_name == "create_page"[m
+[1mdiff --git a/backend/tests/unit/planner/test_planner_service.py b/backend/tests/unit/planner/test_planner_service.py[m
+[1mindex 6a40ea8..09cb93f 100644[m
+[1m--- a/backend/tests/unit/planner/test_planner_service.py[m
+[1m+++ b/backend/tests/unit/planner/test_planner_service.py[m
+[36m@@ -109,8 +109,9 @@[m [masync def test_generate_workflow_pipeline_success():[m
+     wf = res.value()[m
+     assert wf.org_id == org_id[m
+     assert wf.name == "Post slack message notification"[m
+[31m-    assert len(wf.graph.nodes) == 1[m
+[32m+[m[32m    assert len(wf.graph.nodes) == 2[m
+     assert "slack_step" in wf.graph.nodes[m
+[32m+[m[32m    assert "approve_slack_step" in wf.graph.nodes[m
+     [m
+     # Check that a session and a trace was saved[m
+     session_keys = list(container.planner_session_repo.store.keys())[m
