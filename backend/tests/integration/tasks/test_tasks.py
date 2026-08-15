@@ -5,8 +5,7 @@ from syncsphere.main import app
 
 client = TestClient(app)
 
-@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True)
-@patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True)
+
 def test_tasks_crud_lifecycle_flow(mock_task_coll, mock_slack_coll):
     # 1. Register and Login to get jwt header
     register_payload = {
@@ -50,8 +49,9 @@ def test_tasks_crud_lifecycle_flow(mock_task_coll, mock_slack_coll):
      patch("syncsphere.tasks.documents.TaskDocument.find", new_callable=MagicMock) as mock_task_find, \
      patch("syncsphere.tasks.documents.TaskDocument.find_one", new_callable=AsyncMock) as mock_task_find_one, \
      patch("syncsphere.tasks.documents.TaskDocument.save", new_callable=AsyncMock) as mock_task_save, \
-     patch("syncsphere.tasks.documents.TaskDocument.delete", new_callable=AsyncMock) as mock_task_delete, \
-     patch("syncsphere.tasks.router._post_slack_message_legacy", new_callable=AsyncMock) as mock_slack_notifier:
+     patch("syncsphere.tasks.router._post_slack_message_legacy", new_callable=AsyncMock) as mock_slack_notifier, \
+     patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True), \
+     patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True):
          
         mock_slack_find_one.return_value = mock_token
         mock_task_insert.return_value = mock_task

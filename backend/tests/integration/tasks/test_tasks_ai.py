@@ -10,8 +10,7 @@ from syncsphere.tasks.documents import TaskDocument, TaskAutomation
 client = TestClient(app)
 
 
-@patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True)
-@patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True)
+
 def test_tasks_ai_planning_flow(mock_task_coll, mock_slack_coll):
     # Register/Login
     register_payload = {
@@ -101,9 +100,11 @@ def test_tasks_ai_planning_flow(mock_task_coll, mock_slack_coll):
     }
 
     with patch("syncsphere.tasks.documents.TaskDocument.insert", new_callable=AsyncMock) as mock_insert, \
-         patch("syncsphere.tasks.documents.TaskDocument.find_one", new_callable=AsyncMock) as mock_find_one, \
-         patch("syncsphere.tasks.documents.TaskDocument.save", new_callable=AsyncMock) as mock_save, \
-         patch("syncsphere.workflow.application.action_registry.ACTION_REGISTRY") as mock_action_registry:
+     patch("syncsphere.tasks.documents.TaskDocument.find_one", new_callable=AsyncMock) as mock_find_one, \
+     patch("syncsphere.tasks.documents.TaskDocument.save", new_callable=AsyncMock) as mock_save, \
+     patch("syncsphere.tasks.documents.TaskDocument.get_motor_collection", create=True), \
+     patch("syncsphere.tasks.documents.SlackTokenDocument.get_motor_collection", create=True), \
+     patch("syncsphere.workflow.application.action_registry.ACTION_REGISTRY") as mock_action_registry:
          
          mock_insert.return_value = mock_task
          mock_find_one.return_value = mock_task
