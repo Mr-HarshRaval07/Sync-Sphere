@@ -1,7 +1,7 @@
 import asyncio
 from typing import Generator, Any, AsyncGenerator
 from unittest.mock import AsyncMock, MagicMock
-
+from syncsphere.main import app
 import pytest
 
 

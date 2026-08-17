@@ -4,46 +4,18 @@ from fastapi.testclient import TestClient
 
 from syncsphere.main import app
 
-client = TestClient(app)
-
 
 # ============================================================
-# DETERMINISTIC AI RESPONSES
+# AI INTEGRATION TEST
 # ============================================================
 
-async def mock_generate_chat(*args, **kwargs):
-    return {
-        "content": "Hello from mock AI",
-        "provider": "mock",
-        "model": "mock-text-model",
-    }
-
-
-async def mock_generate_completion(*args, **kwargs):
-    return {
-        "text": "A quick mock poem",
-        "provider": "mock",
-        "model": "mock-text-model",
-    }
-
-
-async def mock_generate_embedding(*args, **kwargs):
-    return {
-        "embeddings": [
-            [0.0] * 1536,
-            [0.0] * 1536,
-        ],
-        "provider": "mock",
-        "model": "mock-embed-model",
-    }
-
-
-def test_ai_platform_endpoints_flow():
+def test_ai_platform_endpoints_flow(client):
     """
     End-to-end AI platform API test.
 
     External AI providers are completely mocked.
-    The test verifies:
+
+    Verifies:
       - authentication
       - provider registration
       - model registration
@@ -57,6 +29,8 @@ def test_ai_platform_endpoints_flow():
     # ========================================================
     # 1. REGISTER
     # ========================================================
+
+    print("\n=== 1. REGISTER START ===", flush=True)
 
     register_payload = {
         "email": "ai_admin@acme.ai",
@@ -72,11 +46,18 @@ def test_ai_platform_endpoints_flow():
         json=register_payload,
     )
 
+    print(
+        f"=== 1. REGISTER COMPLETE: {resp.status_code} ===",
+        flush=True,
+    )
+
     assert resp.status_code == 201, resp.text
 
     # ========================================================
     # 2. LOGIN
     # ========================================================
+
+    print("=== 2. LOGIN START ===", flush=True)
 
     resp_login = client.post(
         "/v1/auth/login",
@@ -86,10 +67,14 @@ def test_ai_platform_endpoints_flow():
         },
     )
 
+    print(
+        f"=== 2. LOGIN COMPLETE: {resp_login.status_code} ===",
+        flush=True,
+    )
+
     assert resp_login.status_code == 200, resp_login.text
 
     login_data = resp_login.json()
-
     token = login_data["data"]["access_token"]
 
     headers = {
@@ -99,6 +84,8 @@ def test_ai_platform_endpoints_flow():
     # ========================================================
     # 3. REGISTER MOCK PROVIDER
     # ========================================================
+
+    print("=== 3. PROVIDER REGISTRATION START ===", flush=True)
 
     provider_payload = {
         "name": "mock",
@@ -112,6 +99,12 @@ def test_ai_platform_endpoints_flow():
         headers=headers,
     )
 
+    print(
+        f"=== 3. PROVIDER REGISTRATION COMPLETE: "
+        f"{resp_provider.status_code} ===",
+        flush=True,
+    )
+
     assert resp_provider.status_code == 201, resp_provider.text
 
     provider_data = resp_provider.json()["data"]
@@ -123,6 +116,8 @@ def test_ai_platform_endpoints_flow():
     # ========================================================
     # 4. REGISTER TEXT MODEL
     # ========================================================
+
+    print("=== 4. TEXT MODEL REGISTRATION START ===", flush=True)
 
     model_payload = {
         "provider_id": provider_id,
@@ -141,6 +136,12 @@ def test_ai_platform_endpoints_flow():
         headers=headers,
     )
 
+    print(
+        f"=== 4. TEXT MODEL REGISTRATION COMPLETE: "
+        f"{resp_model.status_code} ===",
+        flush=True,
+    )
+
     assert resp_model.status_code == 201, resp_model.text
 
     model_data = resp_model.json()["data"]
@@ -153,9 +154,17 @@ def test_ai_platform_endpoints_flow():
     # 5. DISABLE MODEL
     # ========================================================
 
+    print("=== 5. DISABLE MODEL START ===", flush=True)
+
     resp_disable = client.post(
         f"/v1/ai/models/{model_id}/disable",
         headers=headers,
+    )
+
+    print(
+        f"=== 5. DISABLE MODEL COMPLETE: "
+        f"{resp_disable.status_code} ===",
+        flush=True,
     )
 
     assert resp_disable.status_code == 200, resp_disable.text
@@ -165,9 +174,17 @@ def test_ai_platform_endpoints_flow():
     # 6. ENABLE MODEL
     # ========================================================
 
+    print("=== 6. ENABLE MODEL START ===", flush=True)
+
     resp_enable = client.post(
         f"/v1/ai/models/{model_id}/enable",
         headers=headers,
+    )
+
+    print(
+        f"=== 6. ENABLE MODEL COMPLETE: "
+        f"{resp_enable.status_code} ===",
+        flush=True,
     )
 
     assert resp_enable.status_code == 200, resp_enable.text
@@ -176,6 +193,8 @@ def test_ai_platform_endpoints_flow():
     # ========================================================
     # 7. REGISTER EMBEDDING MODEL
     # ========================================================
+
+    print("=== 7. EMBEDDING MODEL REGISTRATION START ===", flush=True)
 
     embed_model_payload = {
         "provider_id": provider_id,
@@ -194,17 +213,29 @@ def test_ai_platform_endpoints_flow():
         headers=headers,
     )
 
+    print(
+        f"=== 7. EMBEDDING MODEL REGISTRATION COMPLETE: "
+        f"{resp_embed_model.status_code} ===",
+        flush=True,
+    )
+
     assert resp_embed_model.status_code == 201, resp_embed_model.text
 
     # ========================================================
     # 8. CREATE PROMPT
     # ========================================================
 
+    print("=== 8. CREATE PROMPT START ===", flush=True)
+
     prompt_payload = {
         "name": "system_welcome",
         "description": "Greeting message template",
-        "system_template": "You are a friendly agent. Customer: {{customer}}.",
-        "user_template": "Write greeting message for {{customer}} on plan {{plan}}.",
+        "system_template": (
+            "You are a friendly agent. Customer: {{customer}}."
+        ),
+        "user_template": (
+            "Write greeting message for {{customer}} on plan {{plan}}."
+        ),
         "variables": [
             {
                 "name": "customer",
@@ -224,6 +255,12 @@ def test_ai_platform_endpoints_flow():
         headers=headers,
     )
 
+    print(
+        f"=== 8. CREATE PROMPT COMPLETE: "
+        f"{resp_prompt.status_code} ===",
+        flush=True,
+    )
+
     assert resp_prompt.status_code == 201, resp_prompt.text
 
     prompt_data = resp_prompt.json()["data"]
@@ -235,9 +272,15 @@ def test_ai_platform_endpoints_flow():
     # 9. UPDATE PROMPT -> VERSION 2
     # ========================================================
 
+    print("=== 9. UPDATE PROMPT START ===", flush=True)
+
     update_payload = {
-        "system_template": "You are a friendly agent. Hello {{customer}}.",
-        "user_template": "Welcome {{customer}} to the platform.",
+        "system_template": (
+            "You are a friendly agent. Hello {{customer}}."
+        ),
+        "user_template": (
+            "Welcome {{customer}} to the platform."
+        ),
         "description": "Update welcoming message format",
     }
 
@@ -245,6 +288,12 @@ def test_ai_platform_endpoints_flow():
         "/v1/ai/prompts/system_welcome",
         json=update_payload,
         headers=headers,
+    )
+
+    print(
+        f"=== 9. UPDATE PROMPT COMPLETE: "
+        f"{resp_update.status_code} ===",
+        flush=True,
     )
 
     assert resp_update.status_code == 200, resp_update.text
@@ -256,6 +305,8 @@ def test_ai_platform_endpoints_flow():
     # ========================================================
     # 10. COMPILE PROMPT
     # ========================================================
+
+    print("=== 10. COMPILE PROMPT START ===", flush=True)
 
     compile_payload = {
         "variables": {
@@ -269,6 +320,12 @@ def test_ai_platform_endpoints_flow():
         "/v1/ai/prompts/system_welcome/compile",
         json=compile_payload,
         headers=headers,
+    )
+
+    print(
+        f"=== 10. COMPILE PROMPT COMPLETE: "
+        f"{resp_compile.status_code} ===",
+        flush=True,
     )
 
     assert resp_compile.status_code == 200, resp_compile.text
@@ -287,6 +344,8 @@ def test_ai_platform_endpoints_flow():
     # 11. CHAT
     # ========================================================
 
+    print("=== 11. CHAT START ===", flush=True)
+
     chat_payload = {
         "messages": [
             {
@@ -300,19 +359,21 @@ def test_ai_platform_endpoints_flow():
         },
     }
 
-    # Patch the gateway method actually used by the route.
+    mock_chat_response = type(
+        "MockChatResponse",
+        (),
+        {
+            "message_content": "Hello from mock AI",
+            "provider_name": "mock",
+            "model_name": "mock-text-model",
+        },
+    )()
+
     with patch(
-        "syncsphere.ai.application.services.ai_gateway_impl.AIGatewayImpl.generate_chat",
+        "syncsphere.ai.application.services.ai_gateway_impl."
+        "AIGatewayImpl.generate_chat",
         new=AsyncMock(
-            return_value=type(
-                "MockChatResponse",
-                (),
-                {
-                    "message_content": "Hello from mock AI",
-                    "provider_name": "mock",
-                    "model_name": "mock-text-model",
-                },
-            )(),
+            return_value=mock_chat_response
         ),
     ):
         resp_chat = client.post(
@@ -320,6 +381,12 @@ def test_ai_platform_endpoints_flow():
             json=chat_payload,
             headers=headers,
         )
+
+    print(
+        f"=== 11. CHAT COMPLETE: "
+        f"{resp_chat.status_code} ===",
+        flush=True,
+    )
 
     assert resp_chat.status_code == 200, resp_chat.text
 
@@ -333,23 +400,28 @@ def test_ai_platform_endpoints_flow():
     # 12. COMPLETION
     # ========================================================
 
+    print("=== 12. COMPLETION START ===", flush=True)
+
     completion_payload = {
         "prompt": "Write a quick poem",
         "policy": "cheap",
     }
 
+    mock_completion_response = type(
+        "MockCompletionResponse",
+        (),
+        {
+            "text": "A quick mock poem",
+            "provider_name": "mock",
+            "model_name": "mock-text-model",
+        },
+    )()
+
     with patch(
-        "syncsphere.ai.application.services.ai_gateway_impl.AIGatewayImpl.generate_completion",
+        "syncsphere.ai.application.services.ai_gateway_impl."
+        "AIGatewayImpl.generate_completion",
         new=AsyncMock(
-            return_value=type(
-                "MockCompletionResponse",
-                (),
-                {
-                    "text": "A quick mock poem",
-                    "provider_name": "mock",
-                    "model_name": "mock-text-model",
-                },
-            )(),
+            return_value=mock_completion_response
         ),
     ):
         resp_comp = client.post(
@@ -357,6 +429,12 @@ def test_ai_platform_endpoints_flow():
             json=completion_payload,
             headers=headers,
         )
+
+    print(
+        f"=== 12. COMPLETION COMPLETE: "
+        f"{resp_comp.status_code} ===",
+        flush=True,
+    )
 
     assert resp_comp.status_code == 200, resp_comp.text
 
@@ -369,6 +447,8 @@ def test_ai_platform_endpoints_flow():
     # 13. EMBEDDINGS
     # ========================================================
 
+    print("=== 13. EMBEDDINGS START ===", flush=True)
+
     embed_payload = {
         "input_texts": [
             "hello",
@@ -376,13 +456,16 @@ def test_ai_platform_endpoints_flow():
         ],
     }
 
+    mock_embeddings = [
+        [0.0] * 1536,
+        [0.0] * 1536,
+    ]
+
     with patch(
-        "syncsphere.ai.application.services.ai_gateway_impl.AIGatewayImpl.generate_embedding",
+        "syncsphere.ai.application.services.ai_gateway_impl."
+        "AIGatewayImpl.generate_embedding",
         new=AsyncMock(
-            return_value=[
-                [0.0] * 1536,
-                [0.0] * 1536,
-            ],
+            return_value=mock_embeddings
         ),
     ):
         resp_embed = client.post(
@@ -391,6 +474,12 @@ def test_ai_platform_endpoints_flow():
             headers=headers,
         )
 
+    print(
+        f"=== 13. EMBEDDINGS COMPLETE: "
+        f"{resp_embed.status_code} ===",
+        flush=True,
+    )
+
     assert resp_embed.status_code == 200, resp_embed.text
 
     embed_data = resp_embed.json()["data"]
@@ -398,3 +487,5 @@ def test_ai_platform_endpoints_flow():
     assert "embeddings" in embed_data
     assert len(embed_data["embeddings"]) == 2
     assert len(embed_data["embeddings"][0]) == 1536
+
+    print("=== AI INTEGRATION TEST PASSED ===", flush=True)
