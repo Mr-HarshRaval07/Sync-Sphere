@@ -1,1 +1,0 @@
-# syncsphere.observability.application package

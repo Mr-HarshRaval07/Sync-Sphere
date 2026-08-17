@@ -1,1 +1,0 @@
-# Connector Bounded Context Package
