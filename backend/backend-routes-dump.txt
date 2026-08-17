@@ -1,0 +1,5 @@
+/docs
+/docs/oauth2-redirect
+/openapi.json
+/redoc
+_IncludedRouter(original_router=<fastapi.routing.APIRouter object at 0x0000026AB9AEA690>, include_context=_RouterIncludeContext(included_router=<fastapi.routing.APIRouter object at 0x0000026AB9AEA690>, prefix='', tags=[], dependencies=[], default_response_class=<fastapi.datastructures.DefaultPlaceholder object at 0x0000026AB5CB0690>, responses={}, callbacks=[], deprecated=None, include_in_schema=True, generate_unique_id_function=<fastapi.datastructures.DefaultPlaceholder object at 0x0000026AB5CB06E0>, strict_content_type=True, dependency_overrides_provider=<fastapi.applications.FastAPI object at 0x0000026AB888BB60>), _effective_candidates=[], _effective_candidates_version=None, _effective_low_priority_routes=[], _effective_low_priority_routes_version=None)

@@ -1,0 +1,12 @@
+/v1/tasks/debug-models
+/v1/tasks
+/v1/tasks/plan-with-ai
+/v1/tasks/confirm-plan
+/v1/tasks/{task_id}/execute-automation
+/v1/tasks/{task_id}
+/v1/automations/actions
+/v1/automations
+/v1/automations/{automation_id}/toggle
+/v1/automations/{automation_id}/trigger
+/v1/automations/executions
+/v1/automations/{automation_id}

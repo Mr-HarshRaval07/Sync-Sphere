@@ -1,0 +1,7 @@
+﻿Connecting to MongoDB...
+Trying to approve doc: e5930909-6e3d-4b61-b4c3-3ccf359f5678
+Approving as user: test_user
+--- submit_approval called! id: e5930909-6e3d-4b61-b4c3-3ccf359f5678 org: 6a52824dbd1002d93a5495ae user: test_user
+--- Submitting decision to domain model
+--- submit_approval Exception: UnauthorizedApproverException - User 'test_user' is not authorized to submit decisions for stage 'default_lvl_1'.
+Service res: False, fail: User 'test_user' is not authorized to submit decisions for stage 'default_lvl_1'.

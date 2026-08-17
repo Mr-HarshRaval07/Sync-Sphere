@@ -1,0 +1,19 @@
+# ==============================================================================
+# Run stage for worker
+# ==============================================================================
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy installed packages from builder in main Dockerfile
+# Since this runs in same build context, we can builder-cache it or build from scratch.
+# For simplicity, we define a lightweight setup for worker.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY src/ ./src/
+
+ENV PYTHONPATH=/app/src
+
+CMD ["python", "-m", "syncsphere.workers.worker_main"]

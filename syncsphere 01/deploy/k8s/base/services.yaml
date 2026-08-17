@@ -1,0 +1,85 @@
+# ==========================================
+# 1. Services
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncsphere-frontend-service
+  namespace: syncsphere
+spec:
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: syncsphere-frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncsphere-api-service
+  namespace: syncsphere
+spec:
+  ports:
+    - port: 80
+      targetPort: 8000
+  selector:
+    app: syncsphere-api
+---
+# ==========================================
+# 2. Ingress (Routing with Canary/Blue-Green placeholders)
+# ==========================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: syncsphere-ingress
+  namespace: syncsphere
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: syncsphere.ai
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: syncsphere-frontend-service
+                port:
+                  number: 80
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: syncsphere-api-service
+                port:
+                  number: 80
+---
+# ==========================================
+# 3. Network Policy (Isolate microservices)
+# ==========================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: restrict-database-access
+  namespace: syncsphere
+spec:
+  podSelector:
+    matchLabels:
+      app: mongodb-service
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: syncsphere-api
+        - podSelector:
+            matchLabels:
+              app: syncsphere-worker
+      ports:
+        - protocol: TCP
+          port: 27017

@@ -1,0 +1,30 @@
+Calling plan_with_ai with org_id: 6a61d992676b5c9402828a20
+PASS
+{
+  "data": {
+    "task": {
+      "title": "Send SyncSphere test email",
+      "description": "Send an email with subject 'SyncSphere test' and body 'Testing AI planning' to the user's authorized Gmail account",
+      "assignee": "",
+      "assignee_email": null,
+      "priority": "Medium",
+      "status": "Pending",
+      "due_date": null
+    },
+    "integrations": [
+      {
+        "action": "gmail.send_email",
+        "selected": true,
+        "config": {
+          "subject": "SyncSphere test",
+          "body": "Testing AI planning"
+        },
+        "missing_required_fields": [
+          "to"
+        ],
+        "clarification_question": "What is the email address of your authorized Gmail account that should receive this email?"
+      }
+    ]
+  },
+  "meta": "request_id='diag-test' timestamp='2026-07-31T11:39:17.875084Z'"
+}

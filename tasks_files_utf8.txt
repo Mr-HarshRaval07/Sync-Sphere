@@ -1,0 +1,5 @@
+﻿D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\automation_routes.py
+D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\documents.py
+D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\router.py
+D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\schemas.py
+D:\syncsphere 01\syncsphere 01\backend\src\syncsphere\tasks\__init__.py

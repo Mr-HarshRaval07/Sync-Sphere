@@ -1,0 +1,18 @@
+{
+  "slack": [
+    {
+      "_id": "6a5d0cf102dce3e309baeaac",
+      "org": "6a52824dbd1002d93a5495ae",
+      "user": "6a52824ebd1002d93a5495b0",
+      "team": "T0BCPQ60SJJ"
+    }
+  ],
+  "google": [
+    {
+      "_id": "6a61e0b9b0d35d4b345638c3",
+      "org": "6a52824dbd1002d93a5495ae",
+      "user": "6a52824ebd1002d93a5495b0"
+    }
+  ],
+  "state": []
+}

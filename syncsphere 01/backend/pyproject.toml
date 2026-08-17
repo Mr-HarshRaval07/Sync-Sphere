@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "syncsphere"
+version = "0.1.0"
+description = "SyncSphere AI Core Platform Backend"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "SyncSphere AI Platform Team", email = "platform@syncsphere.ai" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Framework :: FastAPI",
+]
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic[email]>=2.6.0",
+    "pydantic-settings>=2.1.0",
+    "beanie>=1.25.0",
+    "motor>=3.3.2",
+    "redis>=5.0.1",
+    "structlog>=24.1.0",
+    "cryptography>=42.0.2",
+    "argon2-cffi>=23.1.0",
+    "pyjwt[crypto]>=2.8.0",
+    "httpx>=0.26.0",
+    "python-multipart>=0.0.9",
+    "asyncio>=3.4.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.5",
+    "pytest-env>=1.1.3",
+    "ruff>=0.2.1",
+    "mypy>=1.8.0",
+    "import-linter>=2.0",
+    "types-redis>=4.6.0.20240106",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = []
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+env = [
+    "SYNCSPHERE_ENVIRONMENT=test",
+    "SYNCSPHERE_DEBUG=true",
+    "SYNCSPHERE_MONGODB_URI=mongodb://root:rootpassword@localhost:27017/syncsphere_test?authSource=admin",
+    "SYNCSPHERE_REDIS_URI=redis://localhost:6379/1",
+    "SYNCSPHERE_JWT_SECRET=supersecretjwtkeythatisthirtytwobyteslongtobesecure",
+    "SYNCSPHERE_MASTER_ENCRYPTION_KEY=z7pQYv_3e8q56_u-j-2W1S3K6L8_9x1v_3e8q56_u-I="
+]

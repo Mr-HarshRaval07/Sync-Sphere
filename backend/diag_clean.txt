@@ -1,0 +1,14 @@
+==================================================
+STEP 4: VERIFY CONFIGURATION
+==================================================
+SYNCSPHERE_LLM_API_KEY = SET
+Provider (.env) = openrouter
+Model (.env) = inclusionai/ling-3.0-flash:free
+
+==================================================
+STEP 5: DIRECT OPENROUTER TEST
+==================================================
+Testing direct OpenRouter chat completion with model: inclusionai/ling-3.0-flash:free
+DIRECT OPENROUTER TEST:
+PASS
+Raw Output: {"success": true}

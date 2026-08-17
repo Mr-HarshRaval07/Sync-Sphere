@@ -1,0 +1,77 @@
+# ==========================================
+# 1. OpenTelemetry Collector Config
+# ==========================================
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 256
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: "syncsphere"
+  loki:
+    endpoint: "http://loki:3100/loki/api/v1/push"
+  logging:
+    verbosity: normal
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, logging]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [loki, logging]
+---
+# ==========================================
+# 2. Prometheus Scraper Config
+# ==========================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'syncsphere-telemetry'
+    static_configs:
+      - targets: ['otel-collector:8889']
+---
+# ==========================================
+# 3. Loki Logs Config
+# ==========================================
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+  replication_factor: 1
+  path_prefix: /tmp/loki
+
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  filesystem:
+    directory: /tmp/loki/chunks

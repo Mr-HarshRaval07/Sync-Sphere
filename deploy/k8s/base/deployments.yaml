@@ -1,0 +1,190 @@
+# ==========================================
+# 1. Frontend Deployment
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncsphere-frontend
+  namespace: syncsphere
+  labels:
+    app: syncsphere-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: syncsphere-frontend
+  template:
+    metadata:
+      labels:
+        app: syncsphere-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: syncsphere/frontend:latest
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          envFrom:
+            - configMapRef:
+                name: syncsphere-config
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+---
+# ==========================================
+# 2. Backend API Deployment
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncsphere-api
+  namespace: syncsphere
+  labels:
+    app: syncsphere-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: syncsphere-api
+  template:
+    metadata:
+      labels:
+        app: syncsphere-api
+    spec:
+      containers:
+        - name: api
+          image: syncsphere/backend:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          envFrom:
+            - configMapRef:
+                name: syncsphere-config
+            - secretRef:
+                name: syncsphere-secrets
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 15
+---
+# ==========================================
+# 3. Worker Deployment
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: syncsphere-worker
+  namespace: syncsphere
+  labels:
+    app: syncsphere-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: syncsphere-worker
+  template:
+    metadata:
+      labels:
+        app: syncsphere-worker
+    spec:
+      containers:
+        - name: worker
+          image: syncsphere/worker:latest
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          envFrom:
+            - configMapRef:
+                name: syncsphere-config
+            - secretRef:
+                name: syncsphere-secrets
+---
+# ==========================================
+# 4. Horizontal Pod Autoscalers (HPA)
+# ==========================================
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: syncsphere-api-hpa
+  namespace: syncsphere
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: syncsphere-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: syncsphere-frontend-hpa
+  namespace: syncsphere
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: syncsphere-frontend
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+---
+# ==========================================
+# 5. Pod Disruption Budgets (PDB)
+# ==========================================
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: syncsphere-api-pdb
+  namespace: syncsphere
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: syncsphere-api

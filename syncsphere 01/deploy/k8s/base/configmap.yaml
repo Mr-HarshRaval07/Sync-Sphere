@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: syncsphere-config
+  namespace: syncsphere
+data:
+  SYNCSPHERE_ENVIRONMENT: "production"
+  SYNCSPHERE_DEBUG: "false"
+  SYNCSPHERE_MONGODB_URI: "mongodb://root:rootpasswordprod@mongodb-service:27017/syncsphere?authSource=admin"
+  SYNCSPHERE_REDIS_URI: "redis://redis-service:6379/0"
+  NEXT_PUBLIC_API_URL: "https://api.syncsphere.ai"
+  NEXT_PUBLIC_WS_URL: "api.syncsphere.ai"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: syncsphere-secrets
+  namespace: syncsphere
+type: Opaque
+data:
+  # Base64 values for production keys
+  SYNCSPHERE_JWT_SECRET: "cHJvZHVjdGlvbnNlY3JldGtleWp3dHJlcXVpcmVkbG9uZ2xlbmd0aHNlY3VyZXNpZ25pbmdz"
+  SYNCSPHERE_MASTER_ENCRYPTION_KEY: "ejdwUVl2XzNlOHE1Nl91LWotMlcxUzNLNkw4Xzl4MXZfM2U4cTU2X3UtST0="

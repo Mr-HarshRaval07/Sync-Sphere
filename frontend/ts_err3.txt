@@ -1,0 +1,3 @@
+﻿app/dashboard/integrations/page.tsx(7,20): error TS2339: Property 'connectGithub' does not exist on type '{ connectSlack(requestedAccount?: string | undefined): Promise<void>; connectGoogle(requestedAccount?: string | undefined): Promise<void>; disconnectSlack(): Promise<...>; getStatus(): Promise<...>; }'.
+app/dashboard/observability/page.tsx(136,14): error TS2741: Property 'description' is missing in type '{ title: string; }' but required in type 'EmptyStateProps'.
+components/ui/githubConnect.tsx(7,20): error TS2339: Property 'connectGithub' does not exist on type '{ connectSlack(requestedAccount?: string | undefined): Promise<void>; connectGoogle(requestedAccount?: string | undefined): Promise<void>; disconnectSlack(): Promise<...>; getStatus(): Promise<...>; }'.

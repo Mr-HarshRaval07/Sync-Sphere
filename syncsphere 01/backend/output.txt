@@ -1,0 +1,7 @@
+﻿
+--- Testing Login & Dashboard APIs for test_adf67712@acme.ai ---
+Register status: 201
+
+--- Testing Dashboard Stats API ---
+Status Code: 500
+Error Response: {"error":{"code":"INTERNAL_ERROR","message":"An unexpected server error occurred.","details":{},"docs_url":"https://docs.syncsphere.ai/errors/INTERNAL_ERROR"},"meta":{"request_id":"c4c49960-10d4-4b19-a6d6-5869c9507de0","timestamp":"2026-07-11T18:29:53.576857Z"}}
